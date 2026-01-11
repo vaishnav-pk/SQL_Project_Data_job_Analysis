@@ -138,6 +138,14 @@ order by
     average_salary desc
 limit 25
 ```
+
+
+Here's a breakdown of the results for top paying skills for Data Analysts:
+
+- **High Demand for Big Data & ML Skills**: Top salaries are commanded by analysts skilled in big data technologies (PySpark, Couchbase), machine learning tools (DataRobot, Jupyter), and Python libraries (Pandas, NumPy), reflecting the industry's high valuation of data processing and predictive modeling capabilities.
+- **Software Development & Deployment Proficiency**: Knowledge in development and deployment tools (GitLab, Kubernetes, Airflow) indicates a lucrative crossover between data analysis and engineering, with a premium on skills that facilitate automation and efficient data pipeline management.
+- **Cloud Computing Expertise**: Familiarity with cloud and data engineering tools (Elasticsearch, Databricks, GCP) underscores the growing importance of cloud-based analytics environments, suggesting that cloud proficiency significantly boosts earning potential in data analytics.
+
 | Skills        | Average Salary ($) |
 | :---          | :---:              |
 | pyspark       | 208,172            |
@@ -149,20 +157,32 @@ limit 25
 | swift         | 153,750            |
 | jupyter       | 152,777            |
 | pandas        | 151,821            |
-| elasticsearch | 145,000
-
-Here's a breakdown of the results for top paying skills for Data Analysts:
-
-- **High Demand for Big Data & ML Skills**: Top salaries are commanded by analysts skilled in big data technologies (PySpark, Couchbase), machine learning tools (DataRobot, Jupyter), and Python libraries (Pandas, NumPy), reflecting the industry's high valuation of data processing and predictive modeling capabilities.
-- **Software Development & Deployment Proficiency**: Knowledge in development and deployment tools (GitLab, Kubernetes, Airflow) indicates a lucrative crossover between data analysis and engineering, with a premium on skills that facilitate automation and efficient data pipeline management.
-- **Cloud Computing Expertise**: Familiarity with cloud and data engineering tools (Elasticsearch, Databricks, GCP) underscores the growing importance of cloud-based analytics environments, suggesting that cloud proficiency significantly boosts earning potential in data analytics.
+| elasticsearch | 145,000            |
 
 *Table of the average salary for the top 10 paying skills for data analysts*
-
 ### 5. Most Optimal Skills to Learn
 Combining insights from demand and salary data, this query aimed to pinpoint skills that are both in high demand and have high salaries, offering a strategic focus for skill development.
 ```sql
-
+SELECT 
+    skills_dim.skill_id,
+    skills_dim.skills,
+    COUNT(skills_job_dim.job_id) AS demand_count,
+    ROUND(AVG(job_postings_fact.salary_year_avg), 0) AS avg_salary
+FROM job_postings_fact
+INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
+INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
+WHERE
+    job_title_short = 'Data Analyst'
+    AND salary_year_avg IS NOT NULL
+    AND job_work_from_home = True 
+GROUP BY
+    skills_dim.skill_id
+HAVING
+    COUNT(skills_job_dim.job_id) > 10
+ORDER BY
+    avg_salary DESC,
+    demand_count DESC
+LIMIT 25;
 ```
 | Skill ID | Skills     | Demand Count | Average Salary ($) |
 | :---:    | :---       | :---:        | :---:              |
